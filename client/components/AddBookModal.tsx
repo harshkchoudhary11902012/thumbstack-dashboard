@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { IconX } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { IconLoader2, IconX } from "@tabler/icons-react";
 
 export type BookForm = {
   title: string;
@@ -43,6 +43,8 @@ export default function AddBookModal({
     };
   }, [open, onClose]);
 
+  const [submitting, setSubmitting] = useState(false);
+
   if (!open) return null;
 
   const form = initialValues ?? defaultForm;
@@ -56,8 +58,13 @@ export default function AddBookModal({
       tags: (fd.get("tags") as string) || "",
       status: (fd.get("status") as string) || "wantToRead",
     };
-    await onSubmit(data);
-    onClose();
+    setSubmitting(true);
+    try {
+      await onSubmit(data);
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -142,15 +149,26 @@ export default function AddBookModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              disabled={submitting}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-70"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:ring-offset-2"
+              disabled={submitting}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
             >
-              {isEdit ? "Save" : "Add book"}
+              {submitting ? (
+                <>
+                  <IconLoader2 className="size-4 animate-spin" aria-hidden />
+                  {isEdit ? "Saving…" : "Adding…"}
+                </>
+              ) : isEdit ? (
+                "Save"
+              ) : (
+                "Add book"
+              )}
             </button>
           </div>
         </form>

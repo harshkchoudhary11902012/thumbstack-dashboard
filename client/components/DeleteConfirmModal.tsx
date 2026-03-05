@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { IconX } from "@tabler/icons-react";
+import { useEffect, useRef, useState } from "react";
+import { IconLoader2, IconX } from "@tabler/icons-react";
 
 export default function DeleteConfirmModal({
   open,
@@ -32,11 +32,18 @@ export default function DeleteConfirmModal({
     };
   }, [open, onClose]);
 
+  const [deleting, setDeleting] = useState(false);
+
   if (!open) return null;
 
   async function handleConfirm() {
-    await onConfirm();
-    onClose();
+    setDeleting(true);
+    try {
+      await onConfirm();
+      onClose();
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -66,16 +73,25 @@ export default function DeleteConfirmModal({
             ref={cancelRef}
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            disabled={deleting}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-70"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+            disabled={deleting}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
           >
-            Delete
+            {deleting ? (
+              <>
+                <IconLoader2 className="size-4 animate-spin" aria-hidden />
+                Deleting…
+              </>
+            ) : (
+              "Delete"
+            )}
           </button>
         </div>
       </div>

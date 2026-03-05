@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";
 import { api, getToken } from "@/lib/api";
 import OnboardingLayout from "@/components/OnboardingLayout";
 
@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (getToken()) window.location.href = "/dashboard";
@@ -19,6 +20,7 @@ export default function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
+    setLoading(true);
     try {
       await api("/api/auth/signup", {
         method: "POST",
@@ -27,6 +29,7 @@ export default function SignupPage() {
       window.location.href = "/";
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Sign up failed");
+      setLoading(false);
     }
   }
 
@@ -78,9 +81,17 @@ export default function SignupPage() {
         {err && <p className="text-sm text-red-600">{err}</p>}
         <button
           type="submit"
-          className="rounded-lg bg-slate-800 py-2.5 font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:ring-offset-2"
+          disabled={loading}
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-800 py-2.5 font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-70"
         >
-          Sign up
+          {loading ? (
+            <>
+              <IconLoader2 className="size-5 animate-spin" aria-hidden />
+              Creating account…
+            </>
+          ) : (
+            "Sign up"
+          )}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-slate-600">
