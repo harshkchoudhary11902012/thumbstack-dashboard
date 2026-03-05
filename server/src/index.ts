@@ -12,7 +12,12 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const secret = process.env.JWT_SECRET || "dev-secret";
 
-app.use(cors());
+app.use(
+	cors({
+		origin: true,
+		credentials: true,
+	})
+);
 app.use(express.json());
 
 const auth = (req: Request, res: Response, next: NextFunction) => {
