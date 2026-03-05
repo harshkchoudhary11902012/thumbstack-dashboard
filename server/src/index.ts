@@ -40,7 +40,8 @@ app.post("/api/auth/signup", async (req, res) => {
 		const u = user.toObject();
 		delete (u as Record<string, unknown>).password;
 		return res.status(201).json({ user: u });
-	} catch {
+	} catch (err) {
+		console.error("Signup error:", err);
 		res.status(500).json({ error: "Sign up failed" });
 	}
 });
@@ -98,12 +99,23 @@ app.delete("/api/books/:id", auth, async (req, res) => {
 	res.json({ ok: true });
 });
 
-if (process.env.MONGODB_URI)
-	mongoose
-		.connect(process.env.MONGODB_URI)
-		.then(() => console.log("MongoDB connected"))
-		.catch(console.error);
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+	console.error("MONGODB_URI is not set");
+	process.exit(1);
+}
 
-app.listen(PORT, () => console.log(`Server on ${PORT}`));
+mongoose
+	.connect(MONGODB_URI, {
+		serverSelectionTimeoutMS: 30000,
+	})
+	.then(() => {
+		console.log("MongoDB connected");
+		app.listen(PORT, () => console.log(`Server on ${PORT}`));
+	})
+	.catch((err) => {
+		console.error("MongoDB connection failed:", err.message);
+		process.exit(1);
+	});
 
 export default app;
