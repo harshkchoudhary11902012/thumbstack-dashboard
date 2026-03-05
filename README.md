@@ -2,7 +2,7 @@
 
 A minimal full-stack app to manage your reading list: sign up, log in, and track books with status (Want to read / Reading / Completed) and tags.
 
-**Live demo:** [Add your Vercel link here]
+**Live demo:** https://thumbstack-dashboard.vercel.app/
 
 ---
 
