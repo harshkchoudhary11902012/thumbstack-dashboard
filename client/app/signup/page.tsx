@@ -26,7 +26,12 @@ export default function SignupPage() {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      window.location.href = "/";
+      const { token } = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      localStorage.setItem("token", token);
+      window.location.href = "/dashboard";
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Sign up failed");
       setLoading(false);
